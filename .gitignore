@@ -50,3 +50,12 @@ benchmarks/
 # Local automation
 .jobs/
 autorun.log
+
+# Android / Fire TV
+.gradle/
+firetv/local.properties
+firetv/signing.properties
+firetv/**/build/
+*.jks
+*.keystore
+*.apk

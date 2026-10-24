@@ -6,7 +6,7 @@ SELF="scripts/audit.sh"
 fail=0
 scan() { # label, extended regex
   # Lines containing "audit:allow" are exempt (the build-time leak check and its documentation name the patterns).
-  local out; out="$(grep -rIn -E "$2" . --exclude-dir=.git --exclude-dir=.build --exclude-dir=build --exclude="$(basename "$SELF")" 2>/dev/null | grep -v "audit:allow" | grep -v -E "${3:-^\$}" || true)"
+  local out; out="$(grep -rIn -E "$2" . --exclude-dir=.git --exclude-dir=.build --exclude-dir=build --exclude-dir=.gradle --exclude=local.properties --exclude=signing.properties --exclude="$(basename "$SELF")" 2>/dev/null | grep -v "audit:allow" | grep -v -E "${3:-^\$}" || true)"
   [ -n "$out" ] && { echo "FOUND $1:"; echo "$out" | head -20; fail=1; }
 }
 scan "absolute paths" '/Users/|/home/[a-z]|/Volumes/|/private/var|C:\\Users'

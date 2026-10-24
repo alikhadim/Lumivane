@@ -18,6 +18,10 @@ Not affiliated with, endorsed by or sponsored by Signify N.V. or Philips. "Phili
 - Privacy-first architecture: no account, no telemetry, no analytics, no cloud dependency
 - Native Apple Silicon: SwiftUI, ScreenCaptureKit, Metal
 
+## Fire TV
+
+A Hue remote for Amazon Fire TV (rooms, lights, scenes, demo mode) lives in [`firetv/`](firetv). Install it over the internet with the Downloader app: see [docs/FIRETV.md](docs/FIRETV.md).
+
 ## Screenshots
 
 All interface images are captured in Demo Mode: no real room, light, display or network names.
