@@ -21,5 +21,5 @@ chmod +x "$L/Lumivane" "$L/install.sh"
 tar -C "$DIST/linux" -czf "$DIST/Lumivane-Linux-x64-$VERSION.tar.gz" lumivane
 
 rm -rf "$DIST/win" "$DIST/linux"
-(cd "$DIST" && (sha256sum * 2>/dev/null || shasum -a 256 *) > SHA256SUMS.txt)
+(cd "$DIST" && (sha256sum *.zip *.tar.gz 2>/dev/null || shasum -a 256 *.zip *.tar.gz) > SHA256SUMS.txt)
 ls -lh "$DIST"
