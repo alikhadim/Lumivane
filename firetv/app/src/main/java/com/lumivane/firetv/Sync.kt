@@ -56,9 +56,16 @@ interface SyncBackend {
 
 enum class SourceKind(val title: String, val blurb: String) {
     Screen("Screen", "Follows what is on the TV"),
+    MovieAmbient("Movie Ambient", "Slow cinematic color scenes"),
     Aurora("Aurora", "Slow green and violet waves"),
+    CinemaGlow("Cinema Glow", "Warm theater wall wash"),
+    Firelight("Firelight", "Fireplace glow and embers"),
+    Ocean("Ocean", "Deep blue drifting waves"),
     Candle("Candle", "Warm flicker"),
-    ColorLoop("Color loop", "Slowly cycling colors"),
+    ColorLoop("Color loop", "Slowly cycling colors");
+
+    /** Sources that can stand in for the picture when it cannot be captured. */
+    val isAmbient: Boolean get() = this != Screen
 }
 
 object ZoneLayout {
@@ -97,14 +104,60 @@ object StreamPacket {
 
 /** Procedural sources that need no screen capture. Positions follow the Hue area layout. */
 object Effects {
+    private fun frac(v: Float) = v - kotlin.math.floor(v)
+    private fun mix(a: RGB, b: RGB, t: Float) = RGB(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t)
+    private fun ease(t: Float) = t * t * (3 - 2 * t)
+
+    /** Scene palettes for Movie Ambient: (hue, saturation, value) for the left and right edge of the wall. */
+    private val scenes = listOf(
+        floatArrayOf(0.50f, 0.75f, 0.55f, 0.07f, 0.85f, 0.75f), // teal and orange
+        floatArrayOf(0.62f, 0.85f, 0.45f, 0.72f, 0.70f, 0.50f), // deep blue to violet
+        floatArrayOf(0.09f, 0.90f, 0.70f, 0.02f, 0.80f, 0.45f), // amber to ember
+        floatArrayOf(0.40f, 0.70f, 0.40f, 0.52f, 0.60f, 0.50f), // dim green to cyan
+        floatArrayOf(0.85f, 0.60f, 0.45f, 0.60f, 0.80f, 0.50f), // dusk magenta to blue
+    )
+    const val SCENE_SECONDS = 24f
+    private const val FADE_SECONDS = 6f
+
+    private fun scene(i: Int, u: Float): RGB {
+        val p = scenes[Math.floorMod(i, scenes.size)]
+        return mix(ColorMath.rgb(p[0], p[1], p[2]), ColorMath.rgb(p[3], p[4], p[5]), u)
+    }
+
     fun color(kind: SourceKind, t: Float, c: Channel): RGB {
         val x = c.x.toFloat()
         val z = c.z.toFloat()
+        val u = ((x + 1f) / 2f).coerceIn(0f, 1f)
         return when (kind) {
+            SourceKind.MovieAmbient -> {
+                val idx = kotlin.math.floor(t / SCENE_SECONDS).toInt()
+                val into = t - idx * SCENE_SECONDS
+                val fade = ((into - (SCENE_SECONDS - FADE_SECONDS)) / FADE_SECONDS).coerceIn(0f, 1f)
+                val base = mix(scene(idx, u), scene(idx + 1, u), ease(fade))
+                base.scaled(0.92f + 0.08f * sin(t * 0.21f + c.id * 1.7f))
+            }
             SourceKind.Aurora -> {
                 val hue = 0.42f + 0.2f * sin(t * 0.13f + x * 1.4f) + 0.08f * sin(t * 0.07f + z * 2f)
                 val v = 0.55f + 0.35f * sin(t * 0.35f + x * 2.2f + c.id)
-                ColorMath.rgb(hue - kotlin.math.floor(hue), 0.85f, v.coerceIn(0.1f, 1f))
+                ColorMath.rgb(frac(hue), 0.85f, v.coerceIn(0.1f, 1f))
+            }
+            SourceKind.CinemaGlow -> {
+                val hue = 0.085f + 0.012f * sin(t * 0.05f + x)
+                val side = 0.8f + 0.2f * kotlin.math.abs(x)
+                val v = (0.62f + 0.1f * sin(t * 0.17f + x * 1.3f)) * side * (0.9f + 0.1f * (1f - z) / 2f)
+                ColorMath.rgb(hue, 0.62f + 0.08f * sin(t * 0.11f + c.id), v.coerceIn(0.1f, 1f))
+            }
+            SourceKind.Firelight -> {
+                val n = 0.5f + 0.5f * (0.45f * sin(t * 2.3f + c.id * 9f) + 0.3f * sin(t * 5.1f + c.id * 4f + z) + 0.25f * sin(t * 0.8f + c.id * 2f))
+                val ember = sin(t * 1.3f + c.id * 3.1f).coerceAtLeast(0f).let { it * it * it * it * it * it }
+                val low = 0.75f + 0.25f * (1f - z) / 2f
+                ColorMath.rgb(0.015f + 0.04f * n, 0.95f - 0.1f * ember, ((0.3f + 0.5f * n) * low + 0.2f * ember).coerceIn(0.05f, 1f))
+            }
+            SourceKind.Ocean -> {
+                val hue = 0.58f + 0.04f * sin(t * 0.2f + x * 1.5f) + 0.02f * sin(t * 0.5f + z * 2f)
+                val wave = sin(t * 0.3f + x * 2f + z)
+                val caustic = sin(t * 0.9f + x * 3f + c.id).coerceAtLeast(0f).let { it * it * it * it }
+                ColorMath.rgb(hue, 0.9f - 0.25f * caustic, (0.42f + 0.28f * wave + 0.2f * caustic).coerceIn(0.1f, 1f))
             }
             SourceKind.Candle -> {
                 val n = 0.5f + 0.5f * (0.5f * sin(t * 7.3f + c.id * 13f) + 0.3f * sin(t * 11.9f + c.id * 5f) + 0.2f * sin(t * 3.1f + c.id))
@@ -112,7 +165,7 @@ object Effects {
             }
             SourceKind.ColorLoop -> {
                 val hue = t * 0.04f + (x + 1f) * 0.1f
-                ColorMath.rgb(hue - kotlin.math.floor(hue), 1f, 0.9f)
+                ColorMath.rgb(frac(hue), 1f, 0.9f)
             }
             SourceKind.Screen -> RGB.Black
         }
@@ -124,6 +177,8 @@ interface Pipeline {
     fun step(dt: Float, t: Float, settings: SyncSettings): Map<Int, RGB>
     /** Mean luma of the last input frame, or null for sources without a picture. */
     val inputLuma: Float? get() = null
+    /** A message for the user about this source, for example that the picture is protected. */
+    val notice: String? get() = null
     fun close() {}
 }
 
@@ -131,6 +186,48 @@ class EffectPipeline(private val kind: SourceKind, private val channels: List<Ch
     override fun step(dt: Float, t: Float, settings: SyncSettings): Map<Int, RGB> {
         val k = minOf(settings.brightness, ColorEngine.ceiling(settings))
         return channels.associate { it.id to Effects.color(kind, t, it).scaled(k).clamped() }
+    }
+}
+
+/**
+ * Screen sync with an automatic fallback. Protected video (DRM) reaches the capture as pure black, so black frames
+ * for [BLACK_AFTER] seconds switch to the ambient [fallback]. The capture keeps running and the picture returns
+ * after it has been lit for [LIT_AFTER] seconds. Blends over [BLEND] seconds so the lights never jump.
+ */
+class GuardedPipeline(private val capture: Pipeline, private val fallback: Pipeline) : Pipeline {
+    private var blackFor = 0f
+    private var litFor = 0f
+    private var mixAmount = 0f
+    var isProtected = false
+        private set
+    override var inputLuma: Float? = null
+        private set
+    override val notice: String? get() = if (isProtected) MESSAGE else null
+
+    override fun step(dt: Float, t: Float, settings: SyncSettings): Map<Int, RGB> {
+        val picture = capture.step(dt, t, settings)
+        val luma = capture.inputLuma
+        inputLuma = luma
+        if (luma != null) {
+            if (luma < BLACK) { blackFor += dt; litFor = 0f } else { litFor += dt; blackFor = 0f }
+            if (!isProtected && blackFor >= BLACK_AFTER) isProtected = true
+            if (isProtected && litFor >= LIT_AFTER) isProtected = false
+        }
+        mixAmount = (mixAmount + (if (isProtected) dt else -dt) / BLEND).coerceIn(0f, 1f)
+        if (mixAmount <= 0f) return picture
+        val ambient = fallback.step(dt, t, settings)
+        if (mixAmount >= 1f) return ambient
+        return picture.mapValues { (id, p) -> ambient[id]?.let { a -> RGB(p.r + (a.r - p.r) * mixAmount, p.g + (a.g - p.g) * mixAmount, p.b + (a.b - p.b) * mixAmount) } ?: p }
+    }
+
+    override fun close() { capture.close(); fallback.close() }
+
+    companion object {
+        const val BLACK = 0.004f
+        const val BLACK_AFTER = 3f
+        const val LIT_AFTER = 2f
+        const val BLEND = 1.5f
+        const val MESSAGE = "Protected video detected. Direct picture sync unavailable for this content."
     }
 }
 
@@ -149,6 +246,7 @@ class SyncRequest(
     val source: SourceKind,
     val projectionCode: Int = 0,
     val projectionData: Intent? = null,
+    val fallback: SourceKind = SourceKind.MovieAmbient,
 )
 
 /** Process-wide sync state. The foreground service runs the loop; the UI reads the flows. */
@@ -179,7 +277,10 @@ object SyncHub {
         try {
             sink = req.backend.openStream(req.area)
             pipe = when (req.source) {
-                SourceKind.Screen -> ScreenPipeline(ctx, req.projectionCode, requireNotNull(req.projectionData), req.area.channels)
+                SourceKind.Screen -> GuardedPipeline(
+                    ScreenPipeline(ctx, req.projectionCode, requireNotNull(req.projectionData), req.area.channels),
+                    EffectPipeline(req.fallback, req.area.channels),
+                )
                 else -> EffectPipeline(req.source, req.area.channels)
             }
             status.value = SyncStatus(SyncState.Running, label = req.source.title, warning = sink.note)
@@ -202,7 +303,6 @@ object SyncHub {
         val start = System.nanoTime()
         var last = start
         var lastViz = 0L
-        var darkSince = -1L
         while (currentCoroutineContext().isActive) {
             val s = settings.value
             val frameNs = 1_000_000_000L / s.fps.coerceIn(10, 60)
@@ -214,13 +314,8 @@ object SyncHub {
             sink.error?.let { throw HueException(it) }
             if (now - lastViz > 80_000_000L) { live.value = colors; lastViz = now }
 
-            val luma = pipe.inputLuma
-            if (luma != null) {
-                if (luma < 0.004f) { if (darkSince < 0) darkSince = now } else darkSince = -1
-                val dark = darkSince >= 0 && now - darkSince > 6_000_000_000L
-                val w = if (dark) "The captured picture is black. Protected apps such as Netflix or Prime Video typically block capture." else sink.note
-                if (status.value.warning != w) status.value = status.value.copy(warning = w)
-            }
+            val w = pipe.notice ?: sink.note
+            if (status.value.warning != w) status.value = status.value.copy(warning = w)
             val spent = System.nanoTime() - now
             delay(max(1L, (frameNs - spent) / 1_000_000L))
         }

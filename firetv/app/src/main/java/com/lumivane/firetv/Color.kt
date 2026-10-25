@@ -126,7 +126,8 @@ enum class ColorStyle(val title: String, val summary: String) {
     Accurate("Accurate", "Colors as they appear on screen"),
     Enhanced("Enhanced", "Richer, more vivid color"),
     Cinematic("Cinematic", "Warmer, deeper contrast, slower fades"),
-    Gaming("Gaming", "Aggressive color, fastest response");
+    Gaming("Gaming", "Aggressive color, fastest response"),
+    VividPlus("Vivid+", "Punchy wall color over accuracy");
 
     class Params(
         val pick: Float, val satPow: Float, val satGain: Float, val valuePow: Float, val contrast: Float,
@@ -139,6 +140,7 @@ enum class ColorStyle(val title: String, val summary: String) {
             Enhanced -> Params(0.65f, 0.72f, 1.12f, 0.78f, 0.1f, 0f, 0.8f, 1f, 0.6f)
             Cinematic -> Params(0.5f, 0.85f, 1.05f, 0.9f, 0.35f, 0.22f, 1.5f, 1f, 0.6f)
             Gaming -> Params(0.85f, 0.6f, 1.2f, 0.7f, 0.15f, 0f, 0.35f, 2f, 0.3f)
+            VividPlus -> Params(0.8f, 0.55f, 1.25f, 0.62f, 0.2f, 0f, 0.7f, 1.3f, 0.8f)
         }
 }
 

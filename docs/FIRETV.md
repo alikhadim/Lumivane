@@ -2,12 +2,18 @@
 
 Hue control and light sync for the Fire TV, with the remote's D-pad and a sidebar like the Mac app.
 
-- **Home:** start and stop sync, pick a source (Screen, Aurora, Candle, Color loop), a mode (Movie, Gaming, Relaxed), a color style (Accurate, Enhanced, Cinematic, Gaming), brightness and smoothness. A live preview shows the light colors.
+- **Home:** start and stop sync, pick a source (Screen, Movie Ambient, Aurora, Cinema Glow, Firelight, Ocean, Candle, Color loop), a mode (Movie, Gaming, Relaxed), a color style (Accurate, Enhanced, Cinematic, Gaming, Vivid+), brightness and smoothness. A live preview shows the light colors.
 - **Areas:** choose which lights follow the picture and where each sits (top, left, right, bottom and corners), create new areas, delete areas.
 - **Rooms, Lights, Scenes:** direct control. Left and right dim, OK switches on or off, Back returns to the menu.
 - **Demo mode** works without a bridge.
 
-Sync streams colors to an entertainment area on the bridge (DTLS, up to 20 lights) and uses the same color engine as the Mac app. If the bridge refuses the streaming connection, the app falls back to plain Hue updates (about 8 per second across all lights, so slower and less smooth) and shows the reason on the Home page. The **Screen** source captures the display at low resolution through Android screen capture. It depends on Fire OS offering that capability and cannot see protected video (Netflix, Prime Video and similar usually give capture a black picture). Aurora, Candle and Color loop need no capture. Sound sync is Mac only.
+Sync streams colors to an entertainment area on the bridge (DTLS, up to 20 lights) and uses the same color engine as the Mac app. If the bridge refuses the streaming connection, the app falls back to plain Hue updates (about 8 per second across all lights, so slower and less smooth) and shows the reason on the Home page. The **Screen** source captures the display at low resolution through Android screen capture. It depends on Fire OS offering that capability and cannot see protected video (Netflix, Prime Video and similar usually give capture a black picture). The ambient sources need no capture. Sound sync is Mac only.
+
+### Protected video
+
+When the captured picture is pure black for 3 seconds, Screen switches to an ambient mode (Movie Ambient by default, changeable in Settings), shows "Protected video detected. Direct picture sync unavailable for this content." on Home, and keeps checking the capture. After 2 seconds of a visible picture it blends back. Paused or static pictures are not treated as protected.
+
+What has not been verified: capture on specific Fire TV models and Fire OS versions, behavior in each streaming app, and audio capture. Treat Screen sync as unavailable for DRM-protected services. Not implemented: audio-reactive lighting, detection of the foreground app, and driving the Fire TV from a running Mac app.
 
 Requires Fire OS 6 or newer and a Hue Bridge on the same network, with Hue lights that support entertainment streaming for sync. Version 1.0 pairings have no streaming key: forget the bridge in Settings and pair again once.
 

@@ -21,8 +21,8 @@ android {
         applicationId = "com.lumivane.firetv"
         minSdk = 25          // Fire OS 6 and newer
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.0.0"
+        versionCode = 6
+        versionName = "1.1.0"
     }
 
     signingConfigs {

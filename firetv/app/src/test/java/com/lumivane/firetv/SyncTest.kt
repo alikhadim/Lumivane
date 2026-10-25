@@ -120,7 +120,7 @@ class SyncTest {
     }
 
     @Test fun effectsStayInRange() {
-        for (k in listOf(SourceKind.Aurora, SourceKind.Candle, SourceKind.ColorLoop)) {
+        for (k in SourceKind.entries.filter { it.isAmbient }) {
             for (t in listOf(0f, 1.3f, 20f, 500f)) {
                 val c = Effects.color(k, t, Channel(3, -0.4, 0.8, 0.2))
                 for (v in listOf(c.r, c.g, c.b)) assertTrue("$k $t $v", v in 0f..1f)
@@ -218,5 +218,94 @@ class SyncTest {
     @Test fun describesNestedErrors() {
         val d = describe(java.io.IOException("outer", IllegalStateException("inner")))
         assertTrue(d.contains("IOException: outer") && d.contains("IllegalStateException: inner"))
+    }
+
+    private class FakeCapture(var luma: Float?) : Pipeline {
+        override val inputLuma get() = luma
+        override fun step(dt: Float, t: Float, settings: SyncSettings) = mapOf(0 to RGB(0.9f, 0.1f, 0.1f))
+    }
+
+    private class FixedAmbient : Pipeline {
+        override fun step(dt: Float, t: Float, settings: SyncSettings) = mapOf(0 to RGB(0.1f, 0.1f, 0.9f))
+    }
+
+    private fun run(g: GuardedPipeline, seconds: Float, dt: Float = 0.05f): Map<Int, RGB> {
+        var out = emptyMap<Int, RGB>()
+        repeat((seconds / dt).toInt()) { out = g.step(dt, 0f, SyncSettings()) }
+        return out
+    }
+
+    @Test fun guardKeepsPictureWhileLit() {
+        val g = GuardedPipeline(FakeCapture(0.3f), FixedAmbient())
+        val c = run(g, 10f)
+        assertNull(g.notice)
+        assertEquals(0.9f, c.getValue(0).r, 1e-4f)
+    }
+
+    @Test fun guardFallsBackAfterThreeSecondsOfBlack() {
+        val cap = FakeCapture(0f)
+        val g = GuardedPipeline(cap, FixedAmbient())
+        run(g, 2.5f)
+        assertNull(g.notice)
+        val c = run(g, 3f)
+        assertEquals(GuardedPipeline.MESSAGE, g.notice)
+        assertEquals(0.9f, c.getValue(0).b, 1e-4f)
+    }
+
+    @Test fun briefBlackScenesDoNotTrigger() {
+        val cap = FakeCapture(0.3f)
+        val g = GuardedPipeline(cap, FixedAmbient())
+        repeat(5) { cap.luma = 0f; run(g, 2f); cap.luma = 0.2f; run(g, 2f) }
+        assertNull(g.notice)
+    }
+
+    @Test fun guardReturnsToPictureAndBlendsSmoothly() {
+        val cap = FakeCapture(0f)
+        val g = GuardedPipeline(cap, FixedAmbient())
+        run(g, 6f)
+        assertEquals(GuardedPipeline.MESSAGE, g.notice)
+        cap.luma = 0.3f
+        var prev = run(g, 0.05f).getValue(0).r
+        var maxJump = 0f
+        repeat(80) { val r = run(g, 0.05f).getValue(0).r; maxJump = maxOf(maxJump, kotlin.math.abs(r - prev)); prev = r }
+        assertNull(g.notice)
+        assertEquals(0.9f, prev, 1e-4f)
+        assertTrue("jump $maxJump", maxJump < 0.1f)
+    }
+
+    @Test fun missingFramesCountAsBlack() {
+        val g = GuardedPipeline(FakeCapture(null), FixedAmbient())
+        run(g, 10f)
+        assertNull(g.notice)
+    }
+
+    @Test fun movieAmbientChangesSceneWithoutJumps() {
+        val ch = Channel(0, -0.5, 0.8, 0.0)
+        var prev = Effects.color(SourceKind.MovieAmbient, 0f, ch)
+        var maxJump = 0f
+        var t = 0f
+        while (t < Effects.SCENE_SECONDS * 6) {
+            t += 0.05f
+            val c = Effects.color(SourceKind.MovieAmbient, t, ch)
+            maxJump = maxOf(maxJump, kotlin.math.abs(c.r - prev.r), kotlin.math.abs(c.g - prev.g), kotlin.math.abs(c.b - prev.b))
+            prev = c
+        }
+        assertTrue("jump $maxJump", maxJump < 0.03f)
+        assertTrue(Effects.color(SourceKind.MovieAmbient, 1f, ch) != Effects.color(SourceKind.MovieAmbient, Effects.SCENE_SECONDS * 2 + 1f, ch))
+    }
+
+    @Test fun vividPlusIsMoreSaturatedThanAccurate() {
+        fun satOf(style: ColorStyle): Float {
+            val e = ColorEngine()
+            val settings = SyncSettings(style = style, smoothing = 0f)
+            var out = RGB.Black
+            repeat(60) {
+                val stats = listOf(0 to ZoneStats(RGB(0.5f, 0.35f, 0.3f), RGB(0.5f, 0.35f, 0.3f), 0.4f, 0.5f, 0.4f))
+                out = e.process(stats, 0.05f, settings).getValue(0)
+            }
+            val mx = maxOf(out.r, out.g, out.b); val mn = minOf(out.r, out.g, out.b)
+            return if (mx <= 0f) 0f else (mx - mn) / mx
+        }
+        assertTrue(satOf(ColorStyle.VividPlus) > satOf(ColorStyle.Accurate))
     }
 }

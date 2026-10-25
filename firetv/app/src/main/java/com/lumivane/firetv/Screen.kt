@@ -28,6 +28,7 @@ class ScreenPipeline(ctx: Context, code: Int, data: Intent, private val channels
     private val engine = ColorEngine()
     @Volatile override var inputLuma: Float? = null
         private set
+    private var noFrameFor = 0f
 
     init {
         val mpm = ctx.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -63,7 +64,13 @@ class ScreenPipeline(ctx: Context, code: Int, data: Intent, private val channels
         val raw = synchronized(lock) {
             val f = frame ?: return@synchronized null
             ZoneAccumulator.reduceRgba(f, fw, fh, stride, zones)
-        } ?: return channels.associate { it.id to RGB.Black }
+        }
+        if (raw == null) {
+            // No frame has ever arrived: report it as black so the guard can fall back.
+            noFrameFor += dt
+            if (noFrameFor >= 1f) inputLuma = 0f
+            return channels.associate { it.id to RGB.Black }
+        }
         val stats = channels.mapIndexed { i, c -> c.id to ZoneAccumulator.stats(raw, i) }
         inputLuma = (stats.sumOf { it.second.brightness.toDouble() } / max(1, stats.size)).toFloat()
         return engine.process(stats, dt, settings)

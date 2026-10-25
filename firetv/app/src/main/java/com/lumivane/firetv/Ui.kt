@@ -362,7 +362,7 @@ private fun HomePage(vm: AppModel, s: UiState, entry: FocusRequester) {
             val mpm = ctx.getSystemService(android.content.Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
             launcher.launch(mpm.createScreenCaptureIntent())
         } catch (e: Exception) {
-            vm.syncProblem("This Fire TV does not offer screen capture. Use Aurora, Candle or Color loop instead.")
+            vm.syncProblem("This Fire TV does not offer screen capture. Use one of the ambient sources instead.")
         }
     }
 
@@ -404,7 +404,13 @@ private fun HomePage(vm: AppModel, s: UiState, entry: FocusRequester) {
 
         SectionLabel("SOURCE")
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            SourceKind.entries.forEach { k ->
+            SourceKind.entries.take(4).forEach { k ->
+                SelectCard(k.title, k.blurb, s.source == k, Modifier.weight(1f)) { vm.selectSource(k) }
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            SourceKind.entries.drop(4).forEach { k ->
                 SelectCard(k.title, k.blurb, s.source == k, Modifier.weight(1f)) { vm.selectSource(k) }
             }
         }
@@ -425,7 +431,7 @@ private fun HomePage(vm: AppModel, s: UiState, entry: FocusRequester) {
         Spacer(Modifier.height(10.dp))
         LevelCard("Smoothness", "Higher is calmer, lower reacts faster", true, (cfg.smoothing * 100).toInt(), true, {}, { vm.adjustSmoothing(it / 100f) })
         Spacer(Modifier.height(14.dp))
-        Dim("Sound sync is part of the Mac app. Protected apps such as Netflix or Prime Video typically block screen capture, so Screen stays dark there.", 14)
+        Dim("Protected apps such as Netflix or Prime Video block screen capture. When the picture is black for a few seconds, Screen switches to ${s.fallback.title} and returns when a picture is available. Sound sync is part of the Mac app.", 14)
     }
 }
 
@@ -582,6 +588,10 @@ private fun SettingsPage(vm: AppModel, s: UiState, entry: FocusRequester) {
             when { confirm -> "Press again to confirm"; s.demo -> "Leave demo mode"; else -> "Forget this bridge" },
             Modifier.focusRequester(entry), width = 420,
         ) { if (confirm) vm.forget() else confirm = true }
+        Spacer(Modifier.height(14.dp))
+        TvButton("When the picture is protected: ${s.fallback.title}", width = 560, onClick = vm::nextFallback)
+        Spacer(Modifier.height(4.dp))
+        Dim("Screen sync cannot see protected video and switches to this ambient mode.", 14)
         Spacer(Modifier.height(24.dp))
         Dim("Lumivane for Fire TV ${BuildConfig.VERSION_NAME}", 18)
         Spacer(Modifier.height(8.dp))

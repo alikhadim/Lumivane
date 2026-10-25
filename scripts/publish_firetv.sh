@@ -1,6 +1,6 @@
 #!/bin/bash
 # Commits the Fire TV app and publishes its APK as a GitHub release. Run on your Mac, from the repo.
-#   scripts/publish_firetv.sh path/to/Lumivane-FireTV-1.0.0.apk [owner/repo]
+#   scripts/publish_firetv.sh path/to/Lumivane-FireTV-1.1.0.apk [owner/repo]
 # Needs the GitHub CLI, signed in (gh auth login), and git configured with your own name and email.
 set -euo pipefail
 cd "$(dirname "$0")/.."

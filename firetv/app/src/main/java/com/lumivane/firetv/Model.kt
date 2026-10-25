@@ -37,6 +37,7 @@ data class UiState(
     val creatingArea: Boolean = false,
     val areasLoaded: Boolean = false,
     val source: SourceKind = SourceKind.Screen,
+    val fallback: SourceKind = SourceKind.MovieAmbient,
     val profile: String = Profile.presets[0].name,
     val syncError: String? = null,
     val editor: Editor? = null,
@@ -219,7 +220,8 @@ class AppModel(app: Application) : AndroidViewModel(app) {
         store.getString("smoothing")?.toFloatOrNull()?.let { cfg = cfg.copy(smoothing = it.coerceIn(0f, 1f)) }
         SyncHub.settings.value = cfg
         val src = SourceKind.entries.firstOrNull { it.name == store.getString("source") } ?: SourceKind.Screen
-        _s.update { it.copy(profile = profile.name, source = src, areaId = store.getString("area")) }
+        val fb = SourceKind.entries.firstOrNull { it.name == store.getString("fallback") && it.isAmbient } ?: SourceKind.MovieAmbient
+        _s.update { it.copy(profile = profile.name, source = src, fallback = fb, areaId = store.getString("area")) }
     }
 
     fun loadAreas() {
@@ -350,6 +352,14 @@ class AppModel(app: Application) : AndroidViewModel(app) {
         _s.update { it.copy(source = k) }
     }
 
+    /** Cycles the ambient mode used when the picture is protected. */
+    fun nextFallback() {
+        val modes = SourceKind.entries.filter { it.isAmbient }
+        val k = modes[(modes.indexOf(_s.value.fallback) + 1) % modes.size]
+        store.putString("fallback", k.name)
+        _s.update { it.copy(fallback = k) }
+    }
+
     fun selectProfile(p: Profile) {
         store.putString("profile", p.name)
         listOf("style", "brightness", "smoothing").forEach { store.putString(it, "") }
@@ -386,7 +396,7 @@ class AppModel(app: Application) : AndroidViewModel(app) {
         val b = sync ?: return
         val a = st.area ?: return syncProblem("Create a sync area first.")
         _s.update { it.copy(syncError = null) }
-        SyncHub.start(ctx, SyncRequest(b, a, st.source, projectionCode, projectionData))
+        SyncHub.start(ctx, SyncRequest(b, a, st.source, projectionCode, projectionData, st.fallback))
     }
 
     fun stopSync() = SyncHub.stop()

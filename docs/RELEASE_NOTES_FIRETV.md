@@ -2,7 +2,9 @@
 
 Control Philips Hue rooms, lights and scenes with the Fire TV remote and sync lights to the TV picture or to ambient effects, with a sidebar layout like the Mac app. Includes a demo mode that needs no bridge. Sound sync stays on the Mac app.
 
-Screen sync needs Fire OS to allow screen capture and cannot see protected video. Not every Fire TV model has been tested.
+Screen sync needs Fire OS to allow screen capture and cannot see protected video. When the picture is black the app detects it, says so, and switches to an ambient mode. Not every Fire TV model has been tested, and playback in individual streaming apps has not been verified.
+
+New in 1.1.0: protected-video detection with automatic ambient fallback, Movie Ambient, Cinema Glow, Firelight and Ocean modes, the Vivid+ style, and fixes for editing and saving sync areas.
 
 Requires Fire OS 6 or newer (Fire TV Stick 4K, Fire TV Stick Lite, Fire TV Cube, Fire TV Omni and similar) and a Hue Bridge on the same network.
 
