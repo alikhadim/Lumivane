@@ -45,7 +45,7 @@ Color analysis, styles, smoothing, routing, Entertainment streaming (DTLS 1.2 PS
 
 - Core logic: 66 automated tests (color, routing, profiles, streaming, discovery, demo engine).
 - Linux platform layer: 30 automated tests (27 against a real X server (Xvfb) and a real PulseAudio server: displays, capture, windows, thumbnails, system, microphone and per-app audio, secrets; 3 for the Windows audio conversion). The UI was run and inspected on Linux, light and dark. Not tested: a real Hue bridge or lights, the tray icon, Wayland, PipeWire, multi-monitor hardware.
-- Windows: the app and the Windows platform layer compile and publish, and the shared Core tests are platform-neutral. **The Windows-specific code (GDI capture, WASAPI, process loopback, DPAPI, tray, toasts, autostart) has not been run on Windows.** Treat the first Windows release as untested on hardware and please report problems with the diagnostics report from Settings.
+- Windows: run by the maintainer on one Windows machine, working as expected. The result was not itemized per feature, so the Windows-specific parts (GDI capture, WASAPI, process loopback, DPAPI, tray, toasts, autostart) have no automated tests and only that one manual run behind them. Please report problems with the diagnostics report from Settings.
 
 ## Build from source
 

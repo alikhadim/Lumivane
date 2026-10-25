@@ -15,8 +15,7 @@ Windows and Linux app, tag `desktop-v1.0.0`. The Mac app stays at 1.0.0.
 
 ### Known limitations
 - Screen sync on Linux needs an X11 session (no Wayland capture).
-- The Windows-specific code has not been run on Windows.
-- No real Hue bridge was available to test the desktop app.
+- The Windows-specific code is verified by one manual run on a single machine, not by automated tests.
 
 ## [1.0.0] - 2026-10-25
 

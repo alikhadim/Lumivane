@@ -29,7 +29,7 @@ Downloads are on the [Releases page](https://github.com/alikhadim/Lumivane/relea
 
 ## Status
 
-Tested on one setup. The Mac app is the most mature. The Windows build compiles but has not yet been run on Windows hardware; Linux was tested against a real X server and PulseAudio. Protected video can capture as black on every platform. Limits and test status per platform are in the docs above and in [docs/RELEASE_REPORT.md](docs/RELEASE_REPORT.md).
+Tested on one setup. The Mac app is the most mature. Windows was run on one machine and Linux was tested against a real X server and PulseAudio. Protected video can capture as black on every platform. Limits and test status per platform are in the docs above and in [docs/RELEASE_REPORT.md](docs/RELEASE_REPORT.md).
 
 ## Build
 

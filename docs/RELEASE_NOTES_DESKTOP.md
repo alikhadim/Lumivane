@@ -7,7 +7,7 @@ The Mac app's features on Windows and Linux with the same look: screen sync, sou
 
 Screen sync on Linux needs an X11 session: Wayland does not allow screen reading, and the app says so. Protected video is captured black, as everywhere.
 
-The Linux build and its platform layer were tested here against a real X server and PulseAudio. The Windows-specific code has been compiled but not run on a Windows machine. No real Hue bridge was used for either. Details and limits: [docs/DESKTOP.md](https://github.com/alikhadim/Lumivane/blob/main/docs/DESKTOP.md).
+The Linux build and its platform layer were tested against a real X server and PulseAudio. The Windows build was run on one Windows machine by the maintainer; it has no automated tests for the Windows-specific code. Details and limits: [docs/DESKTOP.md](https://github.com/alikhadim/Lumivane/blob/main/docs/DESKTOP.md).
 
 SHA-256:
 
