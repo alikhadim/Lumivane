@@ -2,6 +2,22 @@
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). Versioning: [SemVer](https://semver.org/).
 
+## [Desktop 1.0.0] - 2026-10-25
+
+Windows and Linux app, tag `desktop-v1.0.0`. The Mac app stays at 1.0.0.
+
+### Added
+- C# / Avalonia app with the Mac app's interface and features: screen and sound sync, color styles, profiles, multi-display routing, light hub, Demo Mode, diagnostics, tray control.
+- Shared core: Entertainment streaming (DTLS 1.2 PSK), REST fallback, route planner, color engine, audio analysis; 66 tests.
+- Windows backend: GDI screen and window capture, WASAPI system and microphone audio, per-app audio through process loopback, DPAPI secret storage, autostart, toasts.
+- Linux backend: X11 (XShm, XRandR) capture, PulseAudio system, microphone and per-app audio, keyring or 0600 file secrets, XDG autostart; 30 tests, most against Xvfb and PulseAudio.
+- `scripts/build_desktop.sh`, `scripts/publish_desktop.sh`, `scripts/screenshots_desktop.sh`, `docs/DESKTOP.md`.
+
+### Known limitations
+- Screen sync on Linux needs an X11 session (no Wayland capture).
+- The Windows-specific code has not been run on Windows.
+- No real Hue bridge was available to test the desktop app.
+
 ## [1.0.0] - 2026-10-25
 
 First public release.

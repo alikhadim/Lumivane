@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Lumivane
+Comment=Light that follows the picture
+Exec=@EXEC@
+Icon=@ICON@
+Terminal=false
+Categories=AudioVideo;Utility;
+StartupWMClass=Lumivane

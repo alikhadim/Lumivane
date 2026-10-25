@@ -6,13 +6,13 @@ SELF="scripts/audit.sh"
 fail=0
 scan() { # label, extended regex
   # Lines containing "audit:allow" are exempt (the build-time leak check and its documentation name the patterns).
-  local out; out="$(grep -rIn -E "$2" . --exclude-dir=.git --exclude-dir=.build --exclude-dir=build --exclude-dir=.gradle --exclude=local.properties --exclude=signing.properties --exclude="$(basename "$SELF")" 2>/dev/null | grep -v "audit:allow" | grep -v -E "${3:-^\$}" || true)"
+  local out; out="$(grep -rIn -E "$2" . --exclude-dir=.git --exclude-dir=.build --exclude-dir=build --exclude-dir=.gradle --exclude-dir=bin --exclude-dir=obj --exclude-dir=dist --exclude=local.properties --exclude=signing.properties --exclude="$(basename "$SELF")" 2>/dev/null | grep -v "audit:allow" | grep -v -E "${3:-^\$}" || true)"
   [ -n "$out" ] && { echo "FOUND $1:"; echo "$out" | head -20; fail=1; }
 }
 scan "absolute paths" '/Users/|/home/[a-z]|/Volumes/|/private/var|C:\\Users'
 scan "email addresses" '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}'
 scan "private keys / tokens" 'BEGIN (RSA |EC |OPENSSH |)PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{30,}|AKIA[0-9A-Z]{16}|xox[baprs]-'
-scan "public IPv4 addresses" '\b((2[0-4][0-9]|25[0-5]|1?[0-9]?[0-9])\.){3}(2[0-4][0-9]|25[0-5]|1?[0-9]?[0-9])\b' '192\.168\.|0\.0\.0\.0|127\.0\.0\.1'
+scan "public IPv4 addresses" '\b((2[0-4][0-9]|25[0-5]|1?[0-9]?[0-9])\.){3}(2[0-4][0-9]|25[0-5]|1?[0-9]?[0-9])\b' '192\.168\.|0\.0\.0\.0|127\.0\.0\.1|224\.0\.0\.251|10\.0\.0\.[0-9]|version="'
 for n in "$(id -un)" "$(hostname -s 2>/dev/null)"; do
   [ ${#n} -ge 3 ] && [ "$n" != root ] && scan "local name '$n'" "\\b$n\\b"
 done
@@ -21,7 +21,7 @@ m="$(python3 - <<'PY'
 import os, re, struct
 bad = {b"tEXt", b"iTXt", b"zTXt", b"tIME"}   # eXIf only counts if it holds text (the encoder writes pixel dimensions)
 for root, dirs, files in os.walk("."):
-    dirs[:] = [d for d in dirs if d not in (".build", "build", ".git")]
+    dirs[:] = [d for d in dirs if d not in (".build", "build", ".git", "bin", "obj", "dist")]
     for f in files:
         if not f.endswith((".png", ".icns")): continue
         p = os.path.join(root, f); b = open(p, "rb").read()

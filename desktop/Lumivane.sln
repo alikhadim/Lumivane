@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{03926BD0-F7C1-4612-B103-41BE2408C2C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lumivane.Core", "src\Lumivane.Core\Lumivane.Core.csproj", "{0FDD91B8-E120-46E4-969A-3DA8B0D03B66}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{975D4F01-1018-4DE0-9F9F-A8540D0697D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lumivane.Core.Tests", "tests\Lumivane.Core.Tests\Lumivane.Core.Tests.csproj", "{EB5AB4B1-903F-473E-973F-4785CAC6CF15}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lumivane.App", "src\Lumivane.App\Lumivane.App.csproj", "{CAC7FCB8-6E9A-4FD4-B5CE-8B9E9EFEC179}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lumivane.Platform", "src\Lumivane.Platform\Lumivane.Platform.csproj", "{EA8A8271-CE77-4B37-B0D4-5562B1681131}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lumivane.Platform.Tests", "tests\Lumivane.Platform.Tests\Lumivane.Platform.Tests.csproj", "{C585ADB9-1AF3-40BB-8DF1-5F6572C6AB7F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0FDD91B8-E120-46E4-969A-3DA8B0D03B66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FDD91B8-E120-46E4-969A-3DA8B0D03B66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FDD91B8-E120-46E4-969A-3DA8B0D03B66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FDD91B8-E120-46E4-969A-3DA8B0D03B66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB5AB4B1-903F-473E-973F-4785CAC6CF15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB5AB4B1-903F-473E-973F-4785CAC6CF15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB5AB4B1-903F-473E-973F-4785CAC6CF15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB5AB4B1-903F-473E-973F-4785CAC6CF15}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAC7FCB8-6E9A-4FD4-B5CE-8B9E9EFEC179}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAC7FCB8-6E9A-4FD4-B5CE-8B9E9EFEC179}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAC7FCB8-6E9A-4FD4-B5CE-8B9E9EFEC179}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAC7FCB8-6E9A-4FD4-B5CE-8B9E9EFEC179}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA8A8271-CE77-4B37-B0D4-5562B1681131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA8A8271-CE77-4B37-B0D4-5562B1681131}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA8A8271-CE77-4B37-B0D4-5562B1681131}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA8A8271-CE77-4B37-B0D4-5562B1681131}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C585ADB9-1AF3-40BB-8DF1-5F6572C6AB7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C585ADB9-1AF3-40BB-8DF1-5F6572C6AB7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C585ADB9-1AF3-40BB-8DF1-5F6572C6AB7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C585ADB9-1AF3-40BB-8DF1-5F6572C6AB7F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0FDD91B8-E120-46E4-969A-3DA8B0D03B66} = {03926BD0-F7C1-4612-B103-41BE2408C2C3}
+		{EB5AB4B1-903F-473E-973F-4785CAC6CF15} = {975D4F01-1018-4DE0-9F9F-A8540D0697D8}
+		{CAC7FCB8-6E9A-4FD4-B5CE-8B9E9EFEC179} = {03926BD0-F7C1-4612-B103-41BE2408C2C3}
+		{EA8A8271-CE77-4B37-B0D4-5562B1681131} = {03926BD0-F7C1-4612-B103-41BE2408C2C3}
+		{C585ADB9-1AF3-40BB-8DF1-5F6572C6AB7F} = {975D4F01-1018-4DE0-9F9F-A8540D0697D8}
+	EndGlobalSection
+EndGlobal

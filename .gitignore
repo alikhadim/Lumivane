@@ -59,3 +59,10 @@ firetv/**/build/
 *.jks
 *.keystore
 *.apk
+
+# .NET desktop app
+desktop/**/bin/
+desktop/**/obj/
+desktop/dist/
+.vs/
+*.user
